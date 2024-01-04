@@ -8,14 +8,14 @@ from pytest_django.asserts import assertRedirects
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-        'name, args',
-        (
-            ('news:home', None),
-            ('users:login', None),
-            ('users:logout', None),
-            ('users:signup', None),
-            ('news:detail', pytest.lazy_fixture('pk_for_news'))
-        )
+    'name, args',
+    (
+        ('news:home', None),
+        ('users:login', None),
+        ('users:logout', None),
+        ('users:signup', None),
+        ('news:detail', pytest.lazy_fixture('pk_for_news'))
+    )
 )
 def test_home_page_for_anon(client, name, args):
     url = reverse(name, args=args)
