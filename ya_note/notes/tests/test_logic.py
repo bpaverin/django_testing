@@ -1,21 +1,20 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase, Client
 from django.urls import reverse
 
 from notes.models import Note
+from notes.tests.test_content import SameTestData
 
 
 User = get_user_model()
 
 
-class TestLogicCreation(TestCase):
+class TestLogicCreation(SameTestData):
 
     @classmethod
     def setUpTestData(cls):
-        cls.author = User.objects.create(username='Автор')
-        cls.another_user = User.objects.create(username='Другой пользователь')
+        SameTestData.setUpTestData()
         cls.form_data = {'title': 'Заголовок', 'text': 'Текст'}
 
     def test_anon_cant_create_note(self):
@@ -59,18 +58,13 @@ class TestLogicCreation(TestCase):
         self.assertEqual(note.slug, 'zagolovok')
 
 
-class TestLogicNoteAccess(TestCase):
+class TestLogicNoteAccess(SameTestData):
     NOTE_TEXT = 'Текст'
     NEW_NOTE_TEXT = 'Редактирование'
 
     @classmethod
     def setUpTestData(cls) -> None:
-        cls.author = User.objects.create(username='Автор')
-        cls.author_client = Client()
-        cls.author_client.force_login(cls.author)
-        cls.user = User.objects.create(username='Пользователь')
-        cls.user_client = Client()
-        cls.user_client.force_login(cls.user)
+        SameTestData.setUpTestData()
         cls.note = Note.objects.create(title='Заголовок123',
                                        text=cls.NOTE_TEXT, author=cls.author)
         cls.edit_url = reverse('notes:edit', args=(cls.note.slug,))

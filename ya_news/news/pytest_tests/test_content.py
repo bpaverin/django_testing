@@ -1,23 +1,23 @@
 import pytest
 
 from django.conf import settings
-
 from django.urls import reverse
+
+
+URL_HOME = reverse('news:home')
 
 
 @pytest.mark.django_db
 def test_homepage_news_quantity(client, news_creation):
-    url = reverse('news:home')
-    response = client.get(url)
+    response = client.get(URL_HOME)
     object_list = response.context['object_list']
-    assert len(object_list) == settings.NEWS_COUNT_ON_HOME_PAGE
+    assert object_list.count() == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
 @pytest.mark.django_db
 def test_homepage_news_date_sorted(client, news_creation):
     news_creation
-    url = reverse('news:home')
-    response = client.get(url)
+    response = client.get(URL_HOME)
     object_list = response.context['object_list']
     all_dates = [news.date for news in object_list]
     sorted_dates = sorted(all_dates, reverse=True)
@@ -32,7 +32,9 @@ def test_comments_datetime_sorted(client, comments_creation, news):
     assert 'news' in response.context
     news = response.context['news']
     all_comments = news.comment_set.all()
-    assert all_comments[0].created < all_comments[1].created
+    all_dates = [comment.created for comment in all_comments]
+    sorted_dates = sorted(all_dates)
+    assert all_dates == sorted_dates
 
 
 @pytest.mark.django_db

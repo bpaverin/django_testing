@@ -1,21 +1,20 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
 from django.urls import reverse
 
 from notes.models import Note
+from notes.tests.test_content import SameTestData
 
 
 User = get_user_model()
 
 
-class TestRoutes(TestCase):
+class TestRoutes(SameTestData):
 
     @classmethod
     def setUpTestData(cls) -> None:
-        cls.author = User.objects.create(username='Автор')
-        cls.another_user = User.objects.create(username='Обычный пользователь')
+        SameTestData.setUpTestData()
         cls.note = Note.objects.create(title='Заголовок', text='Текст',
                                        author=cls.author)
 
@@ -52,11 +51,10 @@ class TestRoutes(TestCase):
             'notes:success',
             'notes:add',
         )
-        self.client.force_login(self.author)
         for name in urls:
             with self.subTest(name=name):
                 url = reverse(name)
-                response = self.client.get(url)
+                response = self.author_client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_detail_note_access(self):

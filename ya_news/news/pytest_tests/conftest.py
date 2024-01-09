@@ -1,9 +1,12 @@
+from datetime import datetime, timedelta
+
 import pytest
+
 from django.conf import settings
 from django.utils import timezone
+
 from news.models import News, Comment
 from news.forms import BAD_WORDS
-from datetime import datetime, timedelta
 
 
 @pytest.fixture
@@ -54,7 +57,7 @@ def news_creation():
 @pytest.fixture
 def comments_creation(news, author):
     now = timezone.now()
-    for index in range(2):
+    for index in range(5):
         comment = Comment.objects.create(news=news, author=author,
                                          text=f'Текст {index}')
         comment.created = now + timedelta(days=index)
@@ -72,11 +75,15 @@ def comment_form_data(news, author):
 
 @pytest.fixture
 def bad_comment_form_data(news, author):
-    return {
+    return [{
         'news': news,
         'author': author,
         'text': f'Текст {BAD_WORDS[0]}'
-    }
+        }, {
+        'news': news,
+        'author': author,
+        'text': f'Текст {BAD_WORDS[1]}'
+        }]
 
 
 @pytest.fixture

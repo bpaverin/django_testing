@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 
 from notes.models import Note
@@ -8,12 +8,23 @@ from notes.models import Note
 User = get_user_model()
 
 
-class TestContent(TestCase):
+class SameTestData(TestCase):
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.author = User.objects.create(username='Автор')
+        cls.author_client = Client()
+        cls.author_client.force_login(cls.author)
+        cls.another_user = User.objects.create(username='Обычный пользователь')
+        cls.user_client = Client()
+        cls.user_client.force_login(cls.another_user)
+
+
+class TestContent(SameTestData):
 
     @classmethod
     def setUpTestData(cls):
-        cls.author = User.objects.create(username='Автор')
-        cls.another_user = User.objects.create(username='Обычный пользователь')
+        SameTestData.setUpTestData()
         cls.author_note = Note.objects.create(title='Заголовок1', text='Текст',
                                               author=cls.author)
         cls.another_user_note = Note.objects.create(title='Заголовок2',
@@ -21,15 +32,13 @@ class TestContent(TestCase):
                                                     author=cls.another_user)
 
     def test_detail_in_list_context(self):
-        self.client.force_login(self.author)
         url = reverse('notes:list')
-        response = self.client.get(url)
+        response = self.author_client.get(url)
         self.assertIn(self.author_note, response.context['object_list'])
 
     def test_another_notes_not_in_list(self):
-        self.client.force_login(self.author)
         url = reverse('notes:list')
-        response = self.client.get(url)
+        response = self.author_client.get(url)
         self.assertNotIn(self.another_user_note,
                          response.context['object_list'])
 
@@ -38,9 +47,8 @@ class TestContent(TestCase):
             ('notes:add', None),
             ('notes:edit', (self.author_note.slug,)),
         )
-        self.client.force_login(self.author)
         for name, args in urls:
             with self.subTest(name=name):
                 url = reverse(name, args=args)
-                response = self.client.get(url)
+                response = self.author_client.get(url)
                 self.assertIn('form', response.context)
