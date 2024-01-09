@@ -75,14 +75,16 @@ def comment_form_data(news, author):
 
 @pytest.fixture
 def bad_comment_form_data(news, author):
-    return [{
-        'news': news,
-        'author': author,
-        'text': f'Текст {BAD_WORDS[0]}'
-        }, {
-        'news': news,
-        'author': author,
-        'text': f'Текст {BAD_WORDS[1]}'
+    return [
+        {
+            'news': news,
+            'author': author,
+            'text': f'Текст {BAD_WORDS[0]}'
+        },
+        {
+            'news': news,
+            'author': author,
+            'text': f'Текст {BAD_WORDS[1]}'
         }]
 
 
